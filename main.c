@@ -6,8 +6,23 @@
 #define WIN_H 80 // Height of scaled down window
 #define RGB(r, g, b) ((r) + ((g) << 5) + ((b) << 10)) // 15 bit, 0-31, 5bit=r, 5bit=g, 5bit=b
 
+#define GRID_SIZE 10
+#define WORLD_W WIN_W / GRID_SIZE
+#define WORLD_H WIN_H / GRID_SIZE
+
 int finalFrame = 0; // Final frame
 int FPS = 0; // Current frame
+int worldGrid[WORLD_H][WORLD_W] = 
+{
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
 
 typedef struct // player
 {
@@ -132,6 +147,23 @@ int main()
             // draw player dot
             VRAM[P.y * SCR_W + P.x] = RGB(0, 31, 0); 
 
+            int i;
+            int j;
+
+            for (j = 0; j < WORLD_H; j++) {
+                for (i = 0; i < WORLD_W; i++) {
+                    if (worldGrid[j][i] == 1) {
+                        VRAM[(GRID_SIZE * ((SCR_W * j) + i)) + (SCR_W * GRID_SIZE / 2) + GRID_SIZE / 2] =
+                            RGB(0, 0, 31);
+                    } else {
+                        VRAM[(GRID_SIZE * ((SCR_W * j) + i)) + (SCR_W * GRID_SIZE / 2) + GRID_SIZE / 2] = 
+                            RGB(10, 10, 10);
+                    }
+                }
+            }   
+
+                
+/*
             // frames per second visual counter
             VRAM[(int)(((float) FPS / 15) * SCR_W)] = RGB(31, 31, 0);
             VRAM[(int)(((float) FPS / 15) * SCR_W) + 1] = RGB(31, 31, 0); 
@@ -142,7 +174,7 @@ int main()
             VRAM[WIN_W - 2] = RGB(31, 31, 31); 
             VRAM[SCR_W + WIN_W - 1] = RGB(31, 31, 31);
             VRAM[SCR_W + WIN_W - 2] = RGB(31, 31, 31);
-
+*/
             // increase frame
             FPS += 1;
 
