@@ -1,4 +1,4 @@
-# GBAproject
+# GBAproject 
 Personal project to make a game for the GBA in C using devkitadv 
 
 # Compile
