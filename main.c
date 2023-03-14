@@ -51,7 +51,7 @@ void buttons()
     // move right
     if (KEY_R)
     {
-        P.x += 3;
+        P.x += 2;
         if (P.x > WIN_W - 1)
         {
             P.x = WIN_W - 1;
@@ -61,7 +61,7 @@ void buttons()
     // move left
     if (KEY_L)
     {
-        P.x -= 3;
+        P.x -= 2;
         if (P.x < 0)
         {
             P.x = 0;
@@ -71,7 +71,7 @@ void buttons()
     // move up
     if (KEY_U)
     {
-        P.y -= 3;
+        P.y -= 2;
         if (P.y < 0)
         {
             P.y = 0;
@@ -81,7 +81,7 @@ void buttons()
     // move down
     if (KEY_D)
     {
-        P.y += 3;
+        P.y += 2;
         if (P.y > WIN_H - 1)
         {
             P.y = WIN_H - 1;
