@@ -16,11 +16,11 @@ int worldGrid[WORLD_H][WORLD_W] =
 {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+    {1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
 
@@ -121,6 +121,17 @@ void initGameVars()
     P.y = 35; 
 }
 
+void drawCube(int topLeftPos, int size, int r, int g, int b) {
+    int i;
+    int j;
+
+    for (j = 0; j < size - 1; j++) {
+        for(i = 0; i < size - 1; i++) {
+            VRAM[j * SCR_W + (topLeftPos + i)] = RGB(r, g, b);
+        }
+    }
+}
+
 int main()
 {
     int x, y;
@@ -144,37 +155,31 @@ int main()
             clearBackground();                        
             buttons();
 
-            // draw player dot
-            VRAM[P.y * SCR_W + P.x] = RGB(0, 31, 0); 
-
             int i;
             int j;
 
             for (j = 0; j < WORLD_H; j++) {
                 for (i = 0; i < WORLD_W; i++) {
                     if (worldGrid[j][i] == 1) {
-                        VRAM[(GRID_SIZE * ((SCR_W * j) + i)) + (SCR_W * GRID_SIZE / 2) + GRID_SIZE / 2] =
-                            RGB(0, 0, 31);
+                        drawCube(SCR_W * j * GRID_SIZE + i * GRID_SIZE, GRID_SIZE, 31, 31, 31);
                     } else {
-                        VRAM[(GRID_SIZE * ((SCR_W * j) + i)) + (SCR_W * GRID_SIZE / 2) + GRID_SIZE / 2] = 
-                            RGB(10, 10, 10);
+                        drawCube(SCR_W * j * GRID_SIZE + i * GRID_SIZE, GRID_SIZE, 5, 5, 5);
                     }
                 }
             }   
-
                 
-/*
             // frames per second visual counter
-            VRAM[(int)(((float) FPS / 15) * SCR_W)] = RGB(31, 31, 0);
-            VRAM[(int)(((float) FPS / 15) * SCR_W) + 1] = RGB(31, 31, 0); 
-            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W))] = RGB(31, 31, 0); 
-            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W)) + 1] = RGB(31, 31, 0); 
+            VRAM[(int)(((float) FPS / 15) * SCR_W)] = RGB(31, 0, 0);
+            VRAM[(int)(((float) FPS / 15) * SCR_W) + 1] = RGB(31, 0, 0); 
+            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W))] = RGB(31, 0, 0); 
+            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W)) + 1] = RGB(31, 0, 0); 
 
-            VRAM[WIN_W - 1] = RGB(31, 31, 31);
-            VRAM[WIN_W - 2] = RGB(31, 31, 31); 
-            VRAM[SCR_W + WIN_W - 1] = RGB(31, 31, 31);
-            VRAM[SCR_W + WIN_W - 2] = RGB(31, 31, 31);
-*/
+            // draw player dot
+            VRAM[P.y * SCR_W + P.x] = RGB(0, 20, 0); 
+            VRAM[(P.y + 1) * SCR_W + P.x] = RGB(0, 20, 0); 
+            VRAM[P.y * SCR_W + P.x + 1] = RGB(0, 20, 0); 
+            VRAM[(P.y + 1) * SCR_W + P.x + 1] = RGB(0, 20, 0); 
+
             // increase frame
             FPS += 1;
 
