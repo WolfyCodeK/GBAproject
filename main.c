@@ -70,16 +70,13 @@ void drawCube(int topLeftPos, int size, int r, int g, int b) {
 
 int main()
 {
-    int x, y;
-
     // Init mode 5
-    *(u16 *)0x4000000 = 0x405; // mode 5 background 2
-    *(u16 *)0x400010A = 0x82;  // enable timer for fps
-    *(u16 *)0x400010E = 0x84;  // cnt timer overflow
-
+    *(volatile u16 *)0x4000000 = 0x405; // mode 5 background 2
+    *(volatile u16 *)0x400010A = 0x82;  // enable timer for fps
+    *(volatile u16 *)0x400010E = 0x84;  // cnt timer overflow
     // scale small mode 5 screen to full screen
-    REG_BG2PA = 256 / 2; // 256=normal 128=scale
-    REG_BG2PD = 256 / 2; // 256=normal 128=scale
+    REG_BG2PA = 128; // 128=scale
+    REG_BG2PD = 128; // 128=scale
 
     initGameVars();
 
@@ -90,59 +87,47 @@ int main()
         {
             clearBackground();                        
             buttons();
-
-            int i;
-            int j;
-
+            int i, j;
             for (j = 0; j < WORLD_H; j++) {
                 for (i = 0; i < WORLD_W; i++) {
-                    if (worldGrid[j][i] == 1) {
-                        drawCube(SCR_W * j * GRID_SIZE + i * GRID_SIZE, GRID_SIZE, 31, 31, 31);
-                    } else {
-                        drawCube(SCR_W * j * GRID_SIZE + i * GRID_SIZE, GRID_SIZE, 5, 5, 5);
-                    }
+                    drawCube(SCR_W * j * GRID_SIZE + i * GRID_SIZE, GRID_SIZE, 
+                        (worldGrid[j][i] == 1) ? 31 : 5, 
+                        (worldGrid[j][i] == 1) ? 31 : 5, 
+                        (worldGrid[j][i] == 1) ? 31 : 5);
                 }
             }   
                 
             // frames per second visual counter
-            VRAM[(int)(((float) FPS / 15) * SCR_W)] = RGB(31, 0, 0);
-            VRAM[(int)(((float) FPS / 15) * SCR_W) + 1] = RGB(31, 0, 0); 
-            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W))] = RGB(31, 0, 0); 
-            VRAM[(int) (SCR_W + (((float) FPS / 15) * SCR_W)) + 1] = RGB(31, 0, 0); 
+            int fps_pos = (int)(((float) FPS / 15) * SCR_W);
+            VRAM[fps_pos] = VRAM[fps_pos + 1] = VRAM[SCR_W + fps_pos] = VRAM[SCR_W + fps_pos + 1] = RGB(31, 0, 0);
 
             // draw player dot
-            VRAM[P.y * SCR_W + P.x] = RGB(0, 20, 0); 
-            VRAM[(P.y + 1) * SCR_W + P.x] = RGB(0, 20, 0); 
-            VRAM[P.y * SCR_W + P.x + 1] = RGB(0, 20, 0); 
-            VRAM[(P.y + 1) * SCR_W + P.x + 1] = RGB(0, 20, 0); 
+            int p_pos = P.y * SCR_W + P.x;
+            VRAM[p_pos] = VRAM[p_pos + 1] = VRAM[SCR_W + p_pos] = VRAM[SCR_W + p_pos + 1] = RGB(0, 20, 0); 
 
             // increase frame
-            FPS += 1;
+            FPS++;
 
             // reset counter
             if (finalFrame > REG_TM2D >> 12)
             {
                 FPS = 0;
             }                        
-
             finalFrame = REG_TM2D >> 12; 
 
             // swap front and back buffers
-            while (*Scanline < 160) // wait all scanlines
-            {
-            } 
-
-            // back  buffer 
+            while (*Scanline < 160) {} // wait all scanlines
             if (DISPCNT & BACKB)
             {
                 DISPCNT &= ~BACKB;
-                VRAM = (u16 *)VRAM_B;
+                VRAM = (volatile u16 *)VRAM_B;
             } 
-            else // front buffer
+            else
             {
                 DISPCNT |= BACKB;
-                VRAM = (u16 *)VRAM_F;
+                VRAM = (volatile u16 *)VRAM_F;
             } 
         }
     }
 }
+
