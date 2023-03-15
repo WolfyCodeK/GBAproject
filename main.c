@@ -1,17 +1,18 @@
 #include <math.h>
 #include "gba.h"
 
-#define SCR_W 160 // Width of gameboy screen in pixels
-#define WIN_W 120 // Width of scaled down window
-#define WIN_H 80 // Height of scaled down window
-#define RGB(r, g, b) ((r) + ((g) << 5) + ((b) << 10)) // 15 bit, 0-31, 5bit=r, 5bit=g, 5bit=b
-
+#define SCR_W 240
+#define SCR_H 160
+#define WIN_W 120
+#define WIN_H 80
+#define RGB(r, g, b) ((r) + ((g) << 5) + ((b) << 10))
 #define GRID_SIZE 10
-#define WORLD_W WIN_W / GRID_SIZE
-#define WORLD_H WIN_H / GRID_SIZE
+#define WORLD_W (WIN_W / GRID_SIZE)
+#define WORLD_H (WIN_H / GRID_SIZE)
 
-int finalFrame = 0; // Final frame
-int FPS = 0; // Current frame
+#define PLAYER_MOVE 2
+
+int finalFrame = 0;
 int worldGrid[WORLD_H][WORLD_W] = 
 {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -31,92 +32,26 @@ typedef struct // player
 
 Player P;
 
-// clears all 120x80 pixels
 void clearBackground()
 {
-    int x, y;
+    u32* vram = (u32*) VRAM;
+    u32 color = RGB(0, 0, 0);
 
-    for (x = 0; x < WIN_W; x++)
-    {
-        for (y = 0; y < WIN_H; y++)
-        {
-            VRAM[y * SCR_W + x] = RGB(0, 0, 0);
-        } 
+    for (int i = 0; i < (SCR_W * SCR_H) / 2; i++) {
+        vram[i] = color;
     }
 }
 
-// buttons to press
 void buttons() 
 {
-    // move right
-    if (KEY_R)
-    {
-        P.x += 2;
-        if (P.x > WIN_W - 1)
-        {
-            P.x = WIN_W - 1;
-        }
-    } 
-
-    // move left
-    if (KEY_L)
-    {
-        P.x -= 2;
-        if (P.x < 0)
-        {
-            P.x = 0;
-        }
-    } 
-
-    // move up
-    if (KEY_U)
-    {
-        P.y -= 2;
-        if (P.y < 0)
-        {
-            P.y = 0;
-        }
-    } 
-
-    // move down
-    if (KEY_D)
-    {
-        P.y += 2;
-        if (P.y > WIN_H - 1)
-        {
-            P.y = WIN_H - 1;
-        }
-    } 
-
-    if (KEY_A)
-    {
-    }
-    
-    if (KEY_B)
-    {
-    }
-
-    if (KEY_LS)
-    {
-    }
-
-    if (KEY_RS)
-    {
-    }
-
-    if (KEY_ST)
-    {
-    }
-
-    if (KEY_SL)
-    {
-    }
+    if (KEY_R) P.x = MIN(P.x + PLAYER_MOVE, WIN_W - 1);
+    if (KEY_L) P.x = MAX(P.x - PLAYER_MOVE, 0);
+    if (KEY_U) P.y = MAX(P.y - PLAYER_MOVE, 0);
+    if (KEY_D) P.y = MIN(P.y + PLAYER_MOVE, WIN_H - 1);
 }
 
-// Initialize variables
 void initGameVars()
 {
-    // init player
     P.x = 70;
     P.y = 35; 
 }
@@ -131,6 +66,7 @@ void drawCube(int topLeftPos, int size, int r, int g, int b) {
         }
     }
 }
+
 
 int main()
 {
